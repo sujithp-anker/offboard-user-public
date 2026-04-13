@@ -1,6 +1,6 @@
 locals {
   user_list = var.Users_To_Offboard == "" ? [] : [
-    for u in split(",", Users_To_Offboard) : trimspace(u)
+    for u in split(",", var.Users_To_Offboard) : trimspace(u) # Fixed
   ]
 }
 
