@@ -1,11 +1,28 @@
 #!/bin/sh
 export AWS_PAGER=""
 
-AWS_BIN="/usr/local/bin/aws"
-
 USER_NAME=$1
 TARGET_OU="ou-9ygv-pflaeqry"
 CROSS_ACCOUNT_ROLE_NAME="GlobalUserOffboarderRole"
+
+if ! command -v aws >/dev/null 2>&1; then
+    echo "AWS CLI missing. Attempting ephemeral installation..."
+    cd /tmp
+    curl -sL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+    
+    if ! command -v unzip >/dev/null 2>&1; then
+        echo "Error: 'unzip' is not installed in this runner. Cannot install AWS CLI."
+        exit 1
+    fi
+
+    unzip -q awscliv2.zip
+    ./aws/install -i /tmp/aws-cli -b /tmp/bin >/dev/null 2>&1
+    AWS_BIN="/tmp/bin/aws"
+    rm -rf /tmp/awscliv2.zip /tmp/aws
+else
+    AWS_BIN=$(command -v aws)
+fi
+# ------------------------------------------
 
 if [ -z "$USER_NAME" ]; then
     echo "Usage: ./cleanup.sh <username>"
@@ -65,7 +82,7 @@ for ACC_ID in $ACCOUNTS; do
         done
 
         $AWS_BIN iam delete-user --user-name "$USER_NAME"
-        echo "[Account: $ACC_ID] Success: User $USER_NAME removed."
+        echo "[Account: $ACC_ID] Success: User removed."
     else
         echo "[Account: $ACC_ID] User not found."
     fi
