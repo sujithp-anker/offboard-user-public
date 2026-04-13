@@ -7,6 +7,6 @@ resource "terraform_data" "offboard_trigger" {
 
   provisioner "local-exec" {
     when    = create
-    command = "sh ${path.module}/scripts/cleanup.sh ${var.username}"
+    command = "pip install boto3 --target /tmp/lib && PYTHONPATH=/tmp/lib python3 ${path.module}/scripts/cleanup.py ${var.username}"
   }
 }
