@@ -10,7 +10,7 @@ fi
 
 echo "-------------------------------------------------------"
 echo "Starting Global Offboarding for: $USER_NAME"
-echo "OU: $TARGET_OU"
+echo "Target OU: $TARGET_OU"
 echo "-------------------------------------------------------"
 
 ID_STORE=$(aws sso-admin list-instances --query "Instances[0].IdentityStoreId" --output text)
@@ -28,7 +28,7 @@ fi
 ACCOUNTS=$(aws organizations list-accounts-for-parent --parent-id "$TARGET_OU" --query "Accounts[?Status=='ACTIVE'].Id" --output text)
 
 for ACC_ID in $ACCOUNTS; do
-    echo "[Account: $ACC_ID] Assuming $CROSS_ACCOUNT_ROLE_NAME..."
+    echo "[Account: $ACC_ID] Assuming role..."
 
     CREDENTIALS=$(aws sts assume-role \
         --role-arn "arn:aws:iam::$ACC_ID:role/$CROSS_ACCOUNT_ROLE_NAME" \
@@ -37,16 +37,17 @@ for ACC_ID in $ACCOUNTS; do
         --output text 2>/dev/null)
 
     if [ $? -ne 0 ]; then
-        echo "[Account: $ACC_ID] Error: Could not assume role. Verify StackSet deployment."
+        echo "[Account: $ACC_ID] Error: Could not assume role. Skipping."
         continue
     fi
 
-    export AWS_ACCESS_KEY_ID=$(echo $CREDENTIALS | cut -d' ' -f1)
-    export AWS_SECRET_ACCESS_KEY=$(echo $CREDENTIALS | cut -d' ' -f2)
-    export AWS_SESSION_TOKEN=$(echo $CREDENTIALS | cut -d' ' -f3)
+    export AWS_ACCESS_KEY_ID=$(echo "$CREDENTIALS" | cut -d' ' -f1)
+    export AWS_SECRET_ACCESS_KEY=$(echo "$CREDENTIALS" | cut -d' ' -f2)
+    export AWS_SESSION_TOKEN=$(echo "$CREDENTIALS" | cut -d' ' -f3)
 
     IAM_CHECK=$(aws iam get-user --user-name "$USER_NAME" 2>&1)
-    if [[ ! $IAM_CHECK =~ "NoSuchEntity" ]]; then
+    
+    if ! echo "$IAM_CHECK" | grep -q "NoSuchEntity"; then
         echo "[Account: $ACC_ID] Found local user. Removing access..."
         
         aws iam delete-login-profile --user-name "$USER_NAME" 2>/dev/null || true
@@ -60,7 +61,7 @@ for ACC_ID in $ACCOUNTS; do
         done
 
         aws iam delete-user --user-name "$USER_NAME"
-        echo "[Account: $ACC_ID] Success: User $USER_NAME removed."
+        echo "[Account: $ACC_ID] Success: User removed."
     else
         echo "[Account: $ACC_ID] User not found."
     fi
