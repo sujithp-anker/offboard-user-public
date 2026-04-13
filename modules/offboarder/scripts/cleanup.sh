@@ -6,19 +6,17 @@ TARGET_OU="ou-9ygv-pflaeqry"
 CROSS_ACCOUNT_ROLE_NAME="GlobalUserOffboarderRole"
 
 if ! command -v aws >/dev/null 2>&1; then
-    echo "AWS CLI missing. Attempting ephemeral installation..."
+    echo "DEBUG: Installing AWS CLI..."
     cd /tmp
     curl -sL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-    
-    if ! command -v unzip >/dev/null 2>&1; then
-        echo "Error: 'unzip' is not installed in this runner. Cannot install AWS CLI."
+    unzip -q awscliv2.zip
+    ./aws/install -i /tmp/aws-cli -b /tmp/bin -v 2>&1
+    if [ ! -f /tmp/bin/aws ]; then
+        echo "FATAL: Installation failed. Listing /tmp/aws to see what happened:"
+        ls -R /tmp/aws
         exit 1
     fi
-
-    unzip -q awscliv2.zip
-    ./aws/install -i /tmp/aws-cli -b /tmp/bin >/dev/null 2>&1
     AWS_BIN="/tmp/bin/aws"
-    rm -rf /tmp/awscliv2.zip /tmp/aws
 else
     AWS_BIN=$(command -v aws)
 fi
