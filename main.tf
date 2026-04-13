@@ -6,7 +6,7 @@ locals {
 
 module "offboarder" {
   source   = "./modules/offboarder"
-  for_each = toset(locals.user_list)
+  for_each = toset(local.user_list) 
   username = each.value
 }
 
