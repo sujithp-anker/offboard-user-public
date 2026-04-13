@@ -9,6 +9,6 @@ data "aws_lambda_invocation" "offboard_trigger" {
   })
 }
 
-output "execution_report" {
-  value = jsondecode(data.aws_lambda_invocation.offboard_trigger.result)
-}
+# output "execution_report" {
+#   value = jsondecode(data.aws_lambda_invocation.offboard_trigger.result)
+# }
