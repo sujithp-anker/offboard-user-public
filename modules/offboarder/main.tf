@@ -7,6 +7,6 @@ resource "terraform_data" "offboard_trigger" {
 
   provisioner "local-exec" {
     when    = create
-    command = "bash ${path.module}/scripts/cleanup.sh ${var.username}"
+    command = "sh ${path.module}/scripts/cleanup.sh ${var.username}"
   }
 }

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 USER_NAME=$1
 TARGET_OU="ou-9ygv-pflaeqry"
 CROSS_ACCOUNT_ROLE_NAME="GlobalUserOffboarderRole"
