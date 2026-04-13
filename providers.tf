@@ -1,6 +1,4 @@
 terraform {
-  required_version = ">= 1.5.0"
-
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -10,13 +8,5 @@ terraform {
 }
 
 provider "aws" {
-  region = var.Region
-
-  default_tags {
-    tags = {
-      Automation = "Terraform"
-      Tool       = "Gaia-Offboarder"
-      ManagedBy  = "DevOps"
-    }
-  }
+  region = "us-east-1"
 }

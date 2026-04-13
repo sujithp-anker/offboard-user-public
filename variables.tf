@@ -1,10 +1,5 @@
 variable "Users_To_Offboard" {
   type        = string
-  description = "Enter usernames separated by commas (e.g., user1@company.com, user2@company.com)"
+  description = "Comma-separated list of emails/usernames to offboard"
   default     = ""
-}
-
-variable "Region" {
-  type    = string
-  default = "us-east-1"
 }

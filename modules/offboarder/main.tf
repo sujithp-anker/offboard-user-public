@@ -2,11 +2,13 @@ variable "username" {
   type = string
 }
 
-resource "terraform_data" "offboard_trigger" {
-  input = var.username
+data "aws_lambda_invocation" "offboard_trigger" {
+  function_name = "GlobalUserOffboarder"
+  input = jsonencode({
+    username = var.username
+  })
+}
 
-  provisioner "local-exec" {
-    when    = create
-    command = "pip install boto3 --target /tmp/lib && PYTHONPATH=/tmp/lib python3 ${path.module}/scripts/cleanup.py ${var.username}"
-  }
+output "execution_report" {
+  value = jsondecode(data.aws_lambda_invocation.offboard_trigger.result)
 }
